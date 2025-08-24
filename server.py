@@ -407,35 +407,62 @@ def list_worlds(ctx: Context) -> dict:
 # 6. Runnable block
 if __name__ == "__main__":
     import logging
+    import sys
 
     # Enable debug logging
     logging.basicConfig(level=logging.DEBUG)
     logger = logging.getLogger("mcp")
     logger.setLevel(logging.DEBUG)
 
-    print("Starting FastMCP server on port 8000 with debug logging...")
-
-    # Try different configurations
-    try:
-        # Try different transport configurations
-        print("Trying HTTP transport...")
-        mcp.run(transport="http", port=8000, host="127.0.0.1")
-    except Exception as e:
-        logger.error(f"HTTP transport failed: {e}")
-        print(f"❌ HTTP transport failed: {e}")
-
+    # Check for port argument
+    port = 8000
+    if len(sys.argv) > 1 and sys.argv[1].startswith("--port="):
         try:
-            print("Trying SSE transport...")
-            mcp.run(transport="sse", port=8000, host="127.0.0.1")
-        except Exception as e2:
-            logger.error(f"SSE transport failed: {e2}")
-            print(f"❌ SSE transport failed: {e2}")
+            port = int(sys.argv[1].split("=")[1])
+        except ValueError:
+            print(f"❌ Invalid port: {sys.argv[1]}")
+            sys.exit(1)
 
+    print(f"Starting FastMCP server on port {port} with enhanced mcp_use compatibility...")
+
+    # Enhanced transport configuration for better mcp_use compatibility
+    try:
+        # Try Streamable HTTP first (mcp_use preferred)
+        print("Trying Streamable HTTP transport...")
+        mcp.run(transport="http", port=port, host="127.0.0.1")
+    except Exception as e:
+        logger.error(f"Streamable HTTP transport failed: {e}")
+        print(f"❌ Streamable HTTP transport failed: {e}")
+        print("   This is the preferred transport for mcp_use clients")
+        # Try to find an available port
+        import socket
+        for attempt_port in range(port + 1, port + 11):
             try:
-                print("Trying default transport...")
-                mcp.run(port=8000)
-            except Exception as e3:
-                logger.error(f"Default transport failed: {e3}")
-                print(f"❌ All transports failed: {e3}")
-                raise
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                    s.bind(('127.0.0.1', attempt_port))
+                print(f"   Trying alternative port {attempt_port}...")
+                mcp.run(transport="http", port=attempt_port, host="127.0.0.1")
+                break
+            except OSError:
+                continue
+        else:
+            print("   No available ports found in range")
+            try:
+                print("Trying SSE transport as fallback...")
+                mcp.run(transport="sse", port=port, host="127.0.0.1")
+            except Exception as e2:
+                logger.error(f"SSE transport failed: {e2}")
+                print(f"❌ SSE transport failed: {e2}")
+
+                try:
+                    print("Trying default transport as final fallback...")
+                    mcp.run(port=port)
+                except Exception as e3:
+                    logger.error(f"Default transport failed: {e3}")
+                    print(f"❌ All transports failed: {e3}")
+                    print("🔧 Troubleshooting tips:")
+                    print("   1. Check if port is already in use: lsof -i :8000")
+                    print("   2. Kill existing processes: pkill -f 'python.*server'")
+                    print("   3. Try a different port: python server.py --port=8001")
+                    raise
 

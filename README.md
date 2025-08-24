@@ -32,7 +32,8 @@ A FastMCP-based game world management system for creating and maintaining consis
 
 - **`server.py`**: FastMCP server with world generation and character creation tools
 - **`world_bible_schema.py`**: Pydantic models defining the complete game world structure
-- **`openai_working_integration.py`**: Working OpenAI + game world integration
+- **`openai_working_integration.py`**: Direct LangChain OpenAI integration (recommended)
+- **`mcp_use_integration.py`**: LangChain-based MCP integration (compatible alternative)
 - **`gemini_mcp_demo.py`**: Gemini integration demo
 - **`demo_core_functionality.py`**: Core functionality demonstration
 - **`verify_working_solution.py`**: Verification script proving everything works
@@ -40,21 +41,23 @@ A FastMCP-based game world management system for creating and maintaining consis
 
 ## 🤖 AI Integration - OpenAI + Game World System
 
-The system includes a working integration with OpenAI models for natural language game world management:
+The system includes **two** working integrations with OpenAI models for natural language game world management:
 
-### OpenAI Integration Features
+### 🔧 Option 1: Direct LangChain Integration (Recommended)
 
+The direct LangChain approach provides the most reliable and stable integration with FastMCP.
+
+#### Features
 - **Natural Language Interface**: Interact with game worlds using natural language
 - **Intelligent Tool Usage**: OpenAI models automatically choose appropriate game world tools
 - **Real-time Game State**: AI can create worlds, characters, and manage game state
 - **Interactive Gameplay**: Natural conversation flow with structured game mechanics
 - **Working Implementation**: Fully functional integration with error handling
 
-### Quick OpenAI Setup
-
-1. **Install additional dependencies**:
+#### Quick Setup
+1. **Install dependencies** (already included in requirements.txt):
    ```bash
-   pip install langchain-openai
+   pip install -r requirements.txt
    ```
 
 2. **Set your OpenAI API key**:
@@ -62,33 +65,74 @@ The system includes a working integration with OpenAI models for natural languag
    export OPENAI_API_KEY="your-openai-api-key-here"
    ```
 
-3. **Run the working OpenAI integration**:
+3. **Run the integration**:
    ```bash
    python openai_working_integration.py
    ```
 
-### OpenAI Integration Examples
-
-**Try these natural language commands:**
+#### Example Commands
 - "Create a fantasy world with magic and dragons"
 - "Generate a sci-fi world with spaceships and advanced technology"
 - "Create a brave knight character named Sir Galen"
 - "Move Sir Galen to the dragon's lair"
 - "What worlds do we have available?"
 
-### How It Works
+### 🔧 Option 2: LangChain-Based MCP Integration (Alternative)
 
+The LangChain-based MCP integration provides a more compatible approach that works reliably with FastMCP.
+
+#### Features
+- **Direct Tool Integration**: Custom tools that interface directly with MCP server
+- **Server Compatibility**: Works seamlessly with FastMCP transport protocols
+- **Interactive CLI**: Command-line interface for game world management
+- **Robust Error Handling**: Comprehensive error handling and recovery
+- **No Protocol Issues**: Bypasses mcp_use compatibility problems
+
+#### Quick Setup
+1. **Install dependencies** (already included in requirements.txt):
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. **Set your OpenAI API key**:
+   ```bash
+   export OPENAI_API_KEY="your-openai-api-key-here"
+   ```
+
+3. **Start the MCP server**:
+   ```bash
+   # Terminal 1
+   python server.py
+   ```
+
+4. **Run the integration**:
+   ```bash
+   # Terminal 2
+   python mcp_use_integration.py
+   ```
+
+#### Example Commands
+- "Create a fantasy world"
+- "List all worlds"
+- "Create a character"
+- "Move a character"
+- "Generate a sci-fi world"
+
+#### How It Works
+
+**Direct LangChain Integration:**
 ```
 User Request → OpenAI LLM → LangChain Agent → Game World Tools → World Management
                                                         ↓
 User Response ← OpenAI LLM ← Tool Results ← Game World Operations
 ```
 
-**The integration uses:**
-- **OpenAI GPT-4o-mini**: For natural language understanding
-- **LangChain**: For agent orchestration and tool management
-- **Custom Game World Tools**: Specialized tools for world and character management
-- **Direct Integration**: Bypasses protocol compatibility issues
+**LangChain-Based MCP Integration:**
+```
+User Request → OpenAI LLM → LangChain Agent → Custom MCP Tools → Server API
+                                                        ↓
+User Response ← OpenAI LLM ← Tool Results ← Game World Data
+```
 
 ## 🚀 Quick Start
 
@@ -347,7 +391,8 @@ The improved system incorporates the latest game development practices and moder
 game-sandbox-mcp/
 ├── server.py                    # FastMCP server implementation
 ├── world_bible_schema.py        # Pydantic data models
-├── openai_working_integration.py # Working OpenAI integration
+├── openai_working_integration.py # Direct LangChain OpenAI integration
+├── mcp_use_integration.py      # mcp_use client integration
 ├── gemini_mcp_demo.py          # Gemini integration demo
 ├── demo_core_functionality.py  # Core functionality demo
 ├── verify_working_solution.py  # Verification script
